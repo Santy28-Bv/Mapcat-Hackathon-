@@ -34,3 +34,16 @@ class ProductViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         db.collection("products").document(pk).delete()
         return Response(status=203)
+
+class CategoryViewSet(viewsets.ViewSet):
+    def create(self,request):
+        data = request.data
+        doc_ref = db.collection("category").add(data)
+        return Response({"id": doc_ref[0].id, **data},status=201)
+
+    def list(self, request):
+        products_ref = db.collection("category")
+        docs = products_ref.stream()
+
+        products = [doc.to_dic() | {"id":doc.id} for doc in docs]
+        return Response(products)
