@@ -1,7 +1,8 @@
-# users/views.py
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-
+from django.contrib.auth.models import User
+from rest_framework.viewsets import ModelViewSet
+from .serializers import UserSerializer
 from pixsoft.settings import FIRESTORE_DB as db
 
 # ——————————————————————————————
@@ -16,7 +17,9 @@ def extract_ref(result):
 #############################################
 ##### Crud Usuarios
 class UserViewSet(viewsets.ViewSet):
-
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    
     # Devuelve todos los usuarios
     def list(self, request):
         users_ref = db.collection("users")
