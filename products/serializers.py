@@ -6,29 +6,15 @@ from pixsoft.settings import FIRESTORE_DB as db
 
 
 
-#class ProductSerializer(serializers.Serializer):
-    #id = serializers.CharField(read_only=True)
-    #name = serializers.CharField()
-    #price = serializers.FloatField()
-    #stock = serializers.IntegerField()
-    #subcategory = serializers.CharField()
-    #supplier = serializers.CharField()
-    #
-    #rental_enabled = serializers.BooleanField(default=False)
-    #rental_monthly_price = serializers.FloatField(default=0)
-    #rental_min_months = serializers.IntegerField(default=0)
-    #rental_status = serializers.CharField(default="available")
-    #rented_to = serializers.CharField(allow_null=True, required=False)
-    #rental_end_date = serializers.DateTimeField(allow_null=True, required=False)
-
 class ProductSerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     sku = serializers.CharField()
     name = serializers.CharField()
     price = serializers.FloatField()
     stock = serializers.IntegerField()
-    subcategory = serializers.CharField()
+    subcategory = serializers.CharField()  # Aquí recibirá el NOMBRE
     supplier = serializers.CharField()
+    url_image = serializers.URLField()
     
     rental_enabled = serializers.BooleanField(default=False)
     rental_monthly_price = serializers.FloatField(default=0)
@@ -49,21 +35,27 @@ class ProductSerializer(serializers.Serializer):
 
         return value
 
-
     def validate_subcategory(self, value):
+        # Verificar que la subcategoría EXISTA por su NOMBRE
         docs = db.collection("subcategories").where("name", "==", value).stream()
         docs_list = list(docs)
         if not docs_list:
             raise serializers.ValidationError("Subcategory does not exist")
-    
-        return docs_list[0].id
+        
+        # Retornar el NOMBRE (no el ID)
+        return value
 
+    def validate_category(self, value):
+        docs = db.collection("category").where("name", "==", value).stream()
+        docs_list = list(docs)
+        if not docs_list:
+            raise serializers.ValidationError("Category dos not exist")
+        return value
 
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
         ret["sku_lower"] = ret["sku"].strip().lower()
         return ret
-
 class CategorySerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField()

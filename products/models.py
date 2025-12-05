@@ -4,7 +4,7 @@
 # app/models/product.py
 
 class Product:
-    def __init__(self, id, name, price, stock, subcategory, supplier,
+    def __init__(self, id, name,category, price, url_image, sku, stock, subcategory, supplier,
                  rental_enabled=False, rental_monthly_price=0,
                  rental_min_months=0, rental_status="available",
                  rented_to=None, rental_end_date=None):
@@ -12,7 +12,9 @@ class Product:
         self.id = id
         self.name = name
         self.price = price
+        self.sku = sku
         self.stock = stock
+        self.url_image = url_image
         self.subcategory = subcategory
         self.supplier = supplier
         self.rental_enabled = rental_enabled
@@ -21,6 +23,7 @@ class Product:
         self.rental_status = rental_status
         self.rented_to = rented_to
         self.rental_end_date = rental_end_date
+        self.category = category
 
     def to_dict(self):
         return self.__dict__
