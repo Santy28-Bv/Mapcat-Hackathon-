@@ -4,6 +4,7 @@ from pixsoft.settings import FIRESTORE_DB as db
 
 from .serializers import ProductSerializer, CategorySerializer, SubCategorySerializer
 from .models import Product, Category, SubCategory
+from rest_framework.decorators import action
 
 # Función para extraer DocumentReference sin importar el orden
 def extract_ref(result):
@@ -62,6 +63,32 @@ class ProductViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         db.collection("products").document(pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+    ####### utilidades para filtrar y buscar 
+   
+
+ # GET /products/by_subcategory/?subcategory=sub1,sub2
+    @action(detail=False, methods=["get"])
+    def by_subcategory(self, request):
+        subcategories = request.query_params.get("subcategory", "")
+        subcategory_ids = subcategories.split(",") if subcategories else []
+
+        docs = db.collection("products").stream()
+        products = []
+
+        for doc in docs:
+            data = doc.to_dict() | {"id": doc.id}
+            if subcategory_ids and data.get("subcategory") not in subcategory_ids:
+                continue
+            serializer = ProductSerializer(data)
+            products.append(serializer.data)
+
+        return Response({"count": len(products), "results": products})
+
 
 
 class CategoryViewSet(viewsets.ViewSet):

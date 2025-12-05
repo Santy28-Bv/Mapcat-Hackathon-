@@ -9,7 +9,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/products/', include('products.urls')),   # rutas de productos
+    path('api/v1/', include('products.urls')),   # rutas de productos
     path('api/v1/user/', include('user.urls')),         # rutas de usuarios
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
