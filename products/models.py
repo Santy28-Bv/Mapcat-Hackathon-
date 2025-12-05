@@ -33,3 +33,12 @@ class Category:
 
         def to_dict(self):
             return self.__dict__
+
+class SubCategory:
+    def __init__(self, id, name, description, from_category):
+        self.id = id
+        self.name = name 
+        self.description = description
+        self.from_category = from_category
+        def to_dick(self):
+            return self.__dict__
