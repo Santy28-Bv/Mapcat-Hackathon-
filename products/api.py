@@ -1,9 +1,19 @@
 # products/views.py
-
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
 from pixsoft.settings import FIRESTORE_DB as db
+
+
+# ——————————————————————————————
+# Función para extraer DocumentReference sin importar el orden
+def extract_ref(result):
+    for item in result:
+        if hasattr(item, "id"):
+            return item
+    return None
+# ——————————————————————————————
+
 
 #############################################
 ##### Crud Productos
@@ -23,15 +33,21 @@ class ProductViewSet(viewsets.ViewSet):
         if not doc.exists:
             return Response({"error": "Not found"}, status=403)
 
-        return Response(doc.to_dict())
+        return Response(doc.to_dict() | {"id": doc.id})
 
-    # Crea un productos
+    # Crea un producto
     def create(self, request):
         data = request.data
-        doc_ref = db.collection("products").add(data)
-        return Response({"id": doc_ref[0].id, **data}, status=201)
 
-    # Actualiza un producto(se actualizan solo los que se envian)
+        result = db.collection("products").add(data)
+        ref = extract_ref(result)
+
+        if not ref:
+            return Response({"error": "Firestore insert error"}, status=500)
+
+        return Response({**data, "id": ref.id}, status=201)
+
+    # Actualiza un producto
     def update(self, request, pk=None):
         data = request.data
         db.collection("products").document(pk).set(data, merge=True)
@@ -42,11 +58,11 @@ class ProductViewSet(viewsets.ViewSet):
         db.collection("products").document(pk).delete()
         return Response(status=203)
 
+
 ###########################################
-## Categorias
+## Categorías
 class CategoryViewSet(viewsets.ViewSet):
 
-    # Devuelve todas las categorias
     def list(self, request):
         categories_ref = db.collection("categories")
         docs = categories_ref.stream()
@@ -54,35 +70,38 @@ class CategoryViewSet(viewsets.ViewSet):
         categories = [doc.to_dict() | {"id": doc.id} for doc in docs]
         return Response(categories)
 
-    # Devuelve categoria por Id
     def retrieve(self, request, pk=None):
         doc = db.collection("categories").document(pk).get()
         if not doc.exists:
             return Response({"error": "Not found"}, status=403)
 
-        return Response(doc.to_dict())
+        return Response(doc.to_dict() | {"id": doc.id})
 
-    # Crea una categoria
     def create(self, request):
         data = request.data
-        doc_ref = db.collection("categories").add(data)
-        return Response({"id": doc_ref[0].id, **data}, status=201)
 
-    # Actualiza una categoria
+        result = db.collection("categories").add(data)
+        ref = extract_ref(result)
+
+        if not ref:
+            return Response({"error": "Firestore insert error"}, status=500)
+
+        return Response({**data, "id": ref.id}, status=201)
+
     def update(self, request, pk=None):
         data = request.data
         db.collection("categories").document(pk).set(data, merge=True)
         return Response(data)
 
-    # Elimina una categoria
     def destroy(self, request, pk=None):
         db.collection("categories").document(pk).delete()
         return Response(status=203)
 
 
-# Subcategorias
+###########################################
+## Subcategorías
 class SubCategoryViewSet(viewsets.ViewSet):
-    # Devuelve todas las Subcategorias
+
     def list(self, request):
         subcategories_ref = db.collection("subcategories")
         docs = subcategories_ref.stream()
@@ -90,27 +109,29 @@ class SubCategoryViewSet(viewsets.ViewSet):
         subcategories = [doc.to_dict() | {"id": doc.id} for doc in docs]
         return Response(subcategories)
 
-    # Devuelve subcategoria por ID (generado en firebase)
     def retrieve(self, request, pk=None):
         doc = db.collection("subcategories").document(pk).get()
         if not doc.exists:
             return Response({"error": "Not found"}, status=403)
 
-        return Response(doc.to_dict())
+        return Response(doc.to_dict() | {"id": doc.id})
 
-    # Crea una subcategoria
     def create(self, request):
         data = request.data
-        doc_ref = db.collection("subcategories").add(data)
-        return Response({"id": doc_ref[0].id, **data}, status=201)
 
-    # Actualiza un subcategoria
+        result = db.collection("subcategories").add(data)
+        ref = extract_ref(result)
+
+        if not ref:
+            return Response({"error": "Firestore insert error"}, status=500)
+
+        return Response({**data, "id": ref.id}, status=201)
+
     def update(self, request, pk=None):
         data = request.data
         db.collection("subcategories").document(pk).set(data, merge=True)
         return Response(data)
 
-    # Elimina una subcategoria
     def destroy(self, request, pk=None):
         db.collection("subcategories").document(pk).delete()
         return Response(status=203)

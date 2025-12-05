@@ -40,5 +40,5 @@ class SubCategory:
         self.name = name 
         self.description = description
         self.from_category = from_category
-        def to_dick(self):
+        def to_dict(self):
             return self.__dict__
