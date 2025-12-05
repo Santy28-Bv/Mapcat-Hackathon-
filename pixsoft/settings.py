@@ -14,7 +14,9 @@ FIRESTORE_DB = firestore.client()
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-j-v2p!-6b1aigqd0j+-yxc$13^k-ukcwldsuzp18!vy+=a5+0n'
 DEBUG = True
-ALLOWED_HOSTS = []
+#For dev. 
+ALLOWED_HOSTS = ["*",]
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -25,7 +27,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'user',
+    'products',
+
+    ## Dev
+    'drf_spectacular'
     # Aquí agregarás tus apps personalizadas
     # 'products',
     # 'orders',
@@ -90,3 +95,18 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+### Dev configurations
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API',
+    'DESCRIPTION': '',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
